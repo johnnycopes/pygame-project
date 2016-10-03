@@ -1,11 +1,6 @@
 import pygame
 from random import randint
 
-KEY_UP = 273
-KEY_DOWN = 274
-KEY_LEFT = 276
-KEY_RIGHT = 275
-
 class Monster(object):
     def __init__(self):
         self.x = 140
@@ -49,12 +44,16 @@ def main():
     # declare the size of the canvas
     width = 512
     height = 480
+    tree_width = 25
+    tree_height = 30
 
     # hero/monster position and speeds
     hero_x = 240
     hero_y = 215
     hero_x_speed = 0
     hero_y_speed = 0
+    hero_width = 32
+    hero_height = 32
 
 
     # initialize the pygame framework
@@ -89,8 +88,6 @@ def main():
 
             # Keyboard events
             if event.type == pygame.KEYDOWN:
-                hero_x_speed = 0
-                hero_y_speed = 0
                 if event.key == pygame.K_RIGHT:
                     hero_x_speed = 3
                 if event.key == pygame.K_LEFT:
@@ -123,6 +120,16 @@ def main():
         if loop_counter > 120:
             monster.change_direction()
             loop_counter = 0
+
+
+        if hero_x + hero_x_speed > width - hero_width - tree_width:
+            hero_x_speed = 0
+        if hero_x + hero_x_speed < 0 + tree_width:
+            hero_x_speed = 0
+        if hero_y + hero_y_speed > height - hero_height - tree_height:
+            hero_y_speed = 0
+        if hero_y + hero_y_speed < 0 + tree_height:
+            hero_y_speed = 0
 
 
         hero_x += hero_x_speed
