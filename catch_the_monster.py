@@ -1,6 +1,32 @@
 import pygame
 from random import randint
 
+
+class Hero(object):
+    def __init__(self):
+        self.x = 240
+        self.y = 215
+        self.x_speed = 0
+        self.y_speed = 0
+        self.width = 32
+        self.height = 32
+        self.image = pygame.image.load('images/hero.png').convert_alpha()
+
+    def move(self, width, height):
+        self.x += self.x_speed
+        self.y += self.y_speed
+
+        # 25/30 are the width/height values of the trees
+        if self.x + self.x_speed > width - (self.width - 25):
+            self.x_speed = 0
+        if self.x + self.x_speed < 0 + 25:
+            self.x_speed = 0
+        if self.y + self.y_speed > height - (self.height - 30):
+            self.y_speed = 0
+        if self.y + self.y_speed < 0 + 30:
+            self.y_speed = 0
+
+
 class Monster(object):
     def __init__(self):
         self.x = 140
@@ -44,17 +70,6 @@ def main():
     # declare the size of the canvas
     width = 512
     height = 480
-    tree_width = 25
-    tree_height = 30
-
-    # hero/monster position and speeds
-    hero_x = 240
-    hero_y = 215
-    hero_x_speed = 0
-    hero_y_speed = 0
-    hero_width = 32
-    hero_height = 32
-
 
     # initialize the pygame framework
     pygame.init()
@@ -73,7 +88,7 @@ def main():
     ################################
 
     bg_img = pygame.image.load('images/background.png').convert_alpha()
-    hero = pygame.image.load('images/hero.png').convert_alpha()
+    hero = Hero()
     monster = Monster()
 
     # game loop
@@ -89,22 +104,22 @@ def main():
             # Keyboard events
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    hero_x_speed = 3
+                    hero.x_speed = 3
                 if event.key == pygame.K_LEFT:
-                    hero_x_speed = -3
+                    hero.x_speed = -3
                 if event.key == pygame.K_DOWN:
-                    hero_y_speed = 3
+                    hero.y_speed = 3
                 if event.key == pygame.K_UP:
-                    hero_y_speed = -3
+                    hero.y_speed = -3
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
-                    hero_x_speed = 0
+                    hero.x_speed = 0
                 if event.key == pygame.K_LEFT:
-                    hero_x_speed = 0
+                    hero.x_speed = 0
                 if event.key == pygame.K_DOWN:
-                    hero_y_speed = 0
+                    hero.y_speed = 0
                 if event.key == pygame.K_UP:
-                    hero_y_speed = 0
+                    hero.y_speed = 0
 
             if event.type == pygame.QUIT:
                 # if they closed the window, set stop_game to True
@@ -116,24 +131,11 @@ def main():
         # PUT LOGIC TO UPDATE GAME STATE HERE #
         #######################################
 
+        hero.move(width, height)
         monster.move(width, height)
         if loop_counter > 120:
             monster.change_direction()
             loop_counter = 0
-
-
-        if hero_x + hero_x_speed > width - hero_width - tree_width:
-            hero_x_speed = 0
-        if hero_x + hero_x_speed < 0 + tree_width:
-            hero_x_speed = 0
-        if hero_y + hero_y_speed > height - hero_height - tree_height:
-            hero_y_speed = 0
-        if hero_y + hero_y_speed < 0 + tree_height:
-            hero_y_speed = 0
-
-
-        hero_x += hero_x_speed
-        hero_y += hero_y_speed
 
 
         ################################
@@ -141,7 +143,7 @@ def main():
         ################################
 
         screen.blit(bg_img, (0, 0))
-        screen.blit(hero, (hero_x, hero_y))
+        screen.blit(hero.image, (hero.x, hero.y))
         screen.blit(monster.image, (monster.x, monster.y))
 
         # update the canvas display with the currently drawn frame
