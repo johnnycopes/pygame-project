@@ -7,9 +7,37 @@ class Monster(object):
         self.y = 115
         self.x_speed = 3
         self.y_speed = 0
-        self.width = 32
-        self.height = 30
+        self.width = 30
+        self.height = 32
         self.image = pygame.image.load('images/monster.png').convert_alpha()
+
+    def move(self, width, height):
+        self.x += self.x_speed
+        self.y += self.y_speed
+
+        if self.x + self.x_speed > width - self.width:
+            self.x = 0
+        if self.x + self.x_speed < 0:
+            self.x = width - self.width
+        if self.y + self.y_speed > height - self.height:
+            self.y = 0
+        if self.y + self.y_speed < 0:
+            self.y = height - self.height
+
+    def change_direction(self):
+        self.x_speed = 0
+        self.y_speed = 0
+
+        # move in a random direction
+        direction = randint(1, 4)
+        if direction == 1:
+            self.x_speed = 3
+        elif direction == 2:
+            self.x_speed = -3
+        elif direction == 3:
+            self.y_speed = 3
+        else:
+            self.y_speed = -3
 
 
 def main():
@@ -61,37 +89,11 @@ def main():
         # PUT LOGIC TO UPDATE GAME STATE HERE #
         #######################################
 
-        monster.x += monster.x_speed
-        monster.y += monster.y_speed
-
-        if monster.x + monster.x_speed > width - monster.width:
-            monster.x = 0
-        if monster.x + monster.x_speed < 0:
-            monster.x = width - monster.width
-        if monster.y + monster.y_speed > height - monster.height:
-            monster.y = 0
-        if monster.y + monster.y_speed < 0:
-            monster.y = height - monster.height
-
+        monster.move(width, height)
 
         if loop_counter > 120:
-
-            monster.x_speed = 0
-            monster.y_speed = 0
-
-            # make the monster move in a random direction
-            direction = randint(1, 4)
-            if direction == 1:
-                monster.x_speed = 3
-            elif direction == 2:
-                monster.x_speed = -3
-            elif direction == 3:
-                monster.y_speed = 3
-            else:
-                monster.y_speed = -3
-
+            monster.change_direction()
             loop_counter = 0
-
 
 
         ################################
