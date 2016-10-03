@@ -2,9 +2,10 @@ import pygame
 
 def main():
     # declare the size of the canvas
-    width = 500
-    height = 500
-    blue_color = (97, 159, 182)
+    width = 515
+    height = 480
+
+
 
     # initialize the pygame framework
     pygame.init()
@@ -21,6 +22,11 @@ def main():
     ################################
     # PUT INITIALIZATION CODE HERE #
     ################################
+
+
+    bg_img = pygame.image.load('images/background.png').convert_alpha()
+    hero_img = pygame.image.load('images/hero.png').convert_alpha()
+    monster_img = pygame.image.load('images/monster.png').convert_alpha()
 
     # game loop
     stop_game = False
@@ -40,11 +46,15 @@ def main():
         #######################################
 
         # fill background color
-        screen.fill(blue_color)
+        # screen.fill(bg_img)
 
         ################################
         # PUT CUSTOM DISPLAY CODE HERE #
         ################################
+
+        screen.blit(bg_img, (0, 0))
+        screen.blit(hero_img, (240, 215))
+        screen.blit(monster_img, (140, 115))
 
         # update the canvas display with the currently drawn frame
         pygame.display.update()
