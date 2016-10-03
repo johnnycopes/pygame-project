@@ -1,4 +1,5 @@
 import pygame
+import math
 from random import randint
 
 
@@ -8,8 +9,7 @@ class Hero(object):
         self.y = 215
         self.x_speed = 0
         self.y_speed = 0
-        self.width = 32
-        self.height = 32
+        self.size = 32
         self.image = pygame.image.load('images/hero.png').convert_alpha()
 
     def move(self, width, height):
@@ -17,11 +17,11 @@ class Hero(object):
         self.y += self.y_speed
 
         # 25/30 are the width/height values of the trees
-        if self.x + self.x_speed > width - (self.width - 25):
+        if self.x + self.x_speed > width - self.size - 25:
             self.x_speed = 0
         if self.x + self.x_speed < 0 + 25:
             self.x_speed = 0
-        if self.y + self.y_speed > height - (self.height - 30):
+        if self.y + self.y_speed > height - self.size - 30:
             self.y_speed = 0
         if self.y + self.y_speed < 0 + 30:
             self.y_speed = 0
@@ -33,22 +33,21 @@ class Monster(object):
         self.y = 115
         self.x_speed = 4
         self.y_speed = 0
-        self.width = 30
-        self.height = 32
+        self.size = 32
         self.image = pygame.image.load('images/monster.png').convert_alpha()
 
     def move(self, width, height):
         self.x += self.x_speed
         self.y += self.y_speed
 
-        if self.x + self.x_speed > width - self.width:
+        if self.x + self.x_speed > width - self.size:
             self.x = 0
         if self.x + self.x_speed < 0:
-            self.x = width - self.width
-        if self.y + self.y_speed > height - self.height:
+            self.x = width - self.size
+        if self.y + self.y_speed > height - self.size:
             self.y = 0
         if self.y + self.y_speed < 0:
-            self.y = height - self.height
+            self.y = height - self.size
 
     def change_direction(self):
         self.x_speed = 0
@@ -136,6 +135,15 @@ def main():
         if loop_counter > 120:
             monster.change_direction()
             loop_counter = 0
+
+
+
+        # Collison check
+        if math.sqrt((hero.x - monster.x) ** 2 + (hero.y - monster.y) ** 2) < 32.0:
+            pygame.mixer.init()
+            pygame.mixer.music.load('sounds/win.wav')
+
+
 
 
         ################################
