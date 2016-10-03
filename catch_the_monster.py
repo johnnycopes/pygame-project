@@ -34,6 +34,7 @@ class Monster(object):
         self.x_speed = 4
         self.y_speed = 0
         self.size = 32
+        self.dead = False
         self.image = pygame.image.load('images/monster.png').convert_alpha()
 
     def move(self, width, height):
@@ -140,6 +141,7 @@ def main():
 
         # Collison check
         if math.sqrt((hero.x - monster.x) ** 2 + (hero.y - monster.y) ** 2) < 32.0:
+            monster.dead = True
             pygame.mixer.init()
             pygame.mixer.music.load('sounds/win.wav')
 
@@ -152,7 +154,8 @@ def main():
 
         screen.blit(bg_img, (0, 0))
         screen.blit(hero.image, (hero.x, hero.y))
-        screen.blit(monster.image, (monster.x, monster.y))
+        if not monster.dead:
+            screen.blit(monster.image, (monster.x, monster.y))
 
         # update the canvas display with the currently drawn frame
         pygame.display.update()
