@@ -2,8 +2,15 @@ import pygame
 import math
 from random import randint
 
+def distance(thing1, thing2):
+    return math.sqrt((thing1.x - thing2.x) ** 2 + (thing1.y - thing2.y) ** 2)
 
-class Hero(object):
+class Character(object):
+    def render(self, screen):
+        screen.blit(self.image, (self.x, self.y))
+
+
+class Hero(Character):
     def __init__(self):
         self.x = 240
         self.y = 215
@@ -11,6 +18,9 @@ class Hero(object):
         self.y_speed = 0
         self.size = 32
         self.image = pygame.image.load('images/hero.png').convert_alpha()
+
+    def collides(self, monster):
+        return distance(self, monster) < 32
 
     def move(self, width, height):
         self.x += self.x_speed
@@ -26,16 +36,37 @@ class Hero(object):
         if self.y + self.y_speed < 0 + 30:
             self.y = 0 + 30
 
+    def process_event(self, event):
+        # Keyboard events
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                self.x_speed = 3
+            if event.key == pygame.K_LEFT:
+                self.x_speed = -3
+            if event.key == pygame.K_DOWN:
+                self.y_speed = 3
+            if event.key == pygame.K_UP:
+                self.y_speed = -3
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_RIGHT:
+                self.x_speed = 0
+            if event.key == pygame.K_LEFT:
+                self.x_speed = 0
+            if event.key == pygame.K_DOWN:
+                self.y_speed = 0
+            if event.key == pygame.K_UP:
+                self.y_speed = 0
 
-class Monster(object):
+
+class Monster(Character):
     def __init__(self):
         self.x = 140
         self.y = 115
         self.x_speed = 4
         self.y_speed = 0
         self.size = 32
-        self.dead = False
         self.image = pygame.image.load('images/monster.png').convert_alpha()
+        self.timer = 0
 
     def move(self, width, height):
         self.x += self.x_speed
@@ -50,10 +81,15 @@ class Monster(object):
         if self.y + self.y_speed < 0:
             self.y = height - self.size
 
-    def change_direction(self):
-        self.x_speed = 0
-        self.y_speed = 0
+        self.check_timer()
 
+    def check_timer(self):
+        self.timer += 1
+        if self.timer > 120:
+            self.change_direction()
+            self.timer = 0
+
+    def change_direction(self):
         # move in a random direction
         direction = randint(1, 4)
         diagonal = randint(-4, 4)
@@ -70,8 +106,15 @@ class Monster(object):
             self.y_speed = -4
             self.x_speed = diagonal
 
+    def respawn(self, width, height):
+        self.x = randint(0, width)
+        self.y = randint(0, height)
+
 
 def main():
+    # set game_over to False until hero collides with monster
+    game_over = False
+
     # declare the size of the canvas
     width = 512
     height = 480
@@ -91,8 +134,10 @@ def main():
     ################################
     # PUT INITIALIZATION CODE HERE #
     ################################
-
+    pygame.mixer.init()
     bg_img = pygame.image.load('images/background.png').convert_alpha()
+    win_sound = pygame.mixer.Sound('sounds/win.wav')
+
     hero = Hero()
     monster = Monster()
 
@@ -105,27 +150,10 @@ def main():
             ################################
             # PUT EVENT HANDLING CODE HERE #
             ################################
-
-            # Keyboard events
+            hero.process_event(event)
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    hero.x_speed = 3
-                if event.key == pygame.K_LEFT:
-                    hero.x_speed = -3
-                if event.key == pygame.K_DOWN:
-                    hero.y_speed = 3
-                if event.key == pygame.K_UP:
-                    hero.y_speed = -3
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    hero.x_speed = 0
-                if event.key == pygame.K_LEFT:
-                    hero.x_speed = 0
-                if event.key == pygame.K_DOWN:
-                    hero.y_speed = 0
-                if event.key == pygame.K_UP:
-                    hero.y_speed = 0
-
+                if event.key == pygame.K_RETURN:
+                    game_over = False
             if event.type == pygame.QUIT:
                 # if they closed the window, set stop_game to True
                 # to exit the main loop
@@ -136,19 +164,13 @@ def main():
         # PUT LOGIC TO UPDATE GAME STATE HERE #
         #######################################
 
-        hero.move(width, height)
-        monster.move(width, height)
-        if loop_counter > 120:
-            monster.change_direction()
-            loop_counter = 0
-
-
-
-        # Collison check
-        if math.sqrt((hero.x - monster.x) ** 2 + (hero.y - monster.y) ** 2) < 32.0:
-            monster.dead = True
-            pygame.mixer.init()
-            pygame.mixer.music.load('sounds/win.wav')
+        if not game_over:
+            hero.move(width, height)
+            monster.move(width, height)
+            if hero.collides(monster):
+                game_over = True
+                win_sound.play()
+                monster.respawn(width, height)
 
 
         ################################
@@ -156,9 +178,14 @@ def main():
         ################################
 
         screen.blit(bg_img, (0, 0))
-        screen.blit(hero.image, (hero.x, hero.y))
-        if not monster.dead:
-            screen.blit(monster.image, (monster.x, monster.y))
+
+        hero.render(screen)
+        if game_over:
+            font = pygame.font.Font(None, 40)
+            text = font.render("Hit ENTER to play again!", True, (0, 0, 0))
+            screen.blit(text, (80, 250))
+        else:
+            monster.render(screen)
 
         # update the canvas display with the currently drawn frame
         pygame.display.update()
