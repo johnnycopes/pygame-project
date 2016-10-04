@@ -16,8 +16,9 @@ class Hero(Character):
         self.y = 215
         self.x_speed = 0
         self.y_speed = 0
+        self.speed = 4
         self.size = 32
-        self.image = pygame.image.load('images/hero.png').convert_alpha()
+        self.image = pygame.image.load('images/hero.png')
 
     def collides(self, monster):
         return distance(self, monster) < 32
@@ -40,13 +41,13 @@ class Hero(Character):
         # Keyboard events
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
-                self.x_speed = 3
+                self.x_speed = self.speed
             if event.key == pygame.K_LEFT:
-                self.x_speed = -3
+                self.x_speed = -self.speed
             if event.key == pygame.K_DOWN:
-                self.y_speed = 3
+                self.y_speed = self.speed
             if event.key == pygame.K_UP:
-                self.y_speed = -3
+                self.y_speed = -self.speed
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
                 self.x_speed = 0
@@ -58,14 +59,65 @@ class Hero(Character):
                 self.y_speed = 0
 
 
+class Goblin(Character):
+    def __init__(self):
+        self.x = 340
+        self.y = 115
+        self.x_speed = -3
+        self.y_speed = 0
+        self.speed = 3
+        self.size = 32
+        self.image = pygame.image.load('images/goblin.png')
+        self.timer = 0
+
+    def move(self, width, height):
+        self.x += self.x_speed
+        self.y += self.y_speed
+
+        if self.x + self.x_speed > width - self.size:
+            self.x = 0
+        if self.x + self.x_speed < 0:
+            self.x = width - self.size
+        if self.y + self.y_speed > height - self.size:
+            self.y = 0
+        if self.y + self.y_speed < 0:
+            self.y = height - self.size
+
+        self.check_timer()
+
+    def check_timer(self):
+        self.timer += 1
+        if self.timer > 100:
+            self.change_direction()
+            self.timer = 0
+
+    def change_direction(self):
+        # move in a random direction
+        direction = randint(1, 4)
+        diagonal = randint(-self.speed, self.speed)
+        if direction == 1:
+            self.x_speed = self.speed
+            self.y_speed = diagonal
+        elif direction == 2:
+            self.x_speed = -self.speed
+            self.y_speed = diagonal
+        elif direction == 3:
+            self.y_speed = self.speed
+            self.x_speed = diagonal
+        else:
+            self.y_speed = -self.speed
+            self.x_speed = diagonal
+
+
 class Monster(Character):
     def __init__(self):
         self.x = 140
         self.y = 115
         self.x_speed = 4
         self.y_speed = 0
+        self.speed = 5
         self.size = 32
-        self.image = pygame.image.load('images/monster.png').convert_alpha()
+        self.image = pygame.image.load('images/monster.png')
         self.timer = 0
 
     def move(self, width, height):
@@ -92,18 +144,18 @@ class Monster(Character):
     def change_direction(self):
         # move in a random direction
         direction = randint(1, 4)
-        diagonal = randint(-4, 4)
+        diagonal = randint(-self.speed, self.speed)
         if direction == 1:
-            self.x_speed = 4
+            self.x_speed = self.speed
             self.y_speed = diagonal
         elif direction == 2:
-            self.x_speed = -4
+            self.x_speed = -self.speed
             self.y_speed = diagonal
         elif direction == 3:
-            self.y_speed = 4
+            self.y_speed = self.speed
             self.x_speed = diagonal
         else:
-            self.y_speed = -4
+            self.y_speed = -self.speed
             self.x_speed = diagonal
 
     def respawn(self, width, height):
@@ -135,11 +187,12 @@ def main():
     # PUT INITIALIZATION CODE HERE #
     ################################
     pygame.mixer.init()
-    bg_img = pygame.image.load('images/background.png').convert_alpha()
+    bg_img = pygame.image.load('images/background.png')
     win_sound = pygame.mixer.Sound('sounds/win.wav')
 
     hero = Hero()
     monster = Monster()
+    goblin = Goblin()
 
     # game loop
     stop_game = False
@@ -167,6 +220,7 @@ def main():
         if not game_over:
             hero.move(width, height)
             monster.move(width, height)
+            goblin.move(width, height)
             if hero.collides(monster):
                 game_over = True
                 win_sound.play()
@@ -186,6 +240,7 @@ def main():
             screen.blit(text, (80, 250))
         else:
             monster.render(screen)
+            goblin.render(screen)
 
         # update the canvas display with the currently drawn frame
         pygame.display.update()
