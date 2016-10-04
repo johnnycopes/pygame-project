@@ -20,8 +20,8 @@ class Hero(Character):
         self.size = 32
         self.image = pygame.image.load('images/hero.png')
 
-    def collides(self, monster):
-        return distance(self, monster) < 32
+    def collides(self, enemy):
+        return distance(self, enemy) < 32
 
     def move(self, width, height):
         self.x += self.x_speed
@@ -108,6 +108,10 @@ class Goblin(Character):
             self.y_speed = -self.speed
             self.x_speed = diagonal
 
+    def respawn(self, width, height):
+        self.x = randint(0, width)
+        self.y = randint(0, height)
+
 
 class Monster(Character):
     def __init__(self):
@@ -167,6 +171,10 @@ def main():
     # set game_over to False until hero collides with monster
     game_over = False
 
+    # set game_won / game_lost variables
+    win = False
+    lose = False
+
     # declare the size of the canvas
     width = 512
     height = 480
@@ -189,6 +197,7 @@ def main():
     pygame.mixer.init()
     bg_img = pygame.image.load('images/background.png')
     win_sound = pygame.mixer.Sound('sounds/win.wav')
+    lose_sound = pygame.mixer.Sound('sounds/lose.wav')
 
     hero = Hero()
     monster = Monster()
@@ -225,6 +234,13 @@ def main():
                 game_over = True
                 win_sound.play()
                 monster.respawn(width, height)
+                goblin.respawn(width, height)
+            elif hero.collides(goblin):
+                game_over = True
+                lose_sound.play()
+                monster.respawn(width, height)
+                goblin.respawn(width, height)
+
 
 
         ################################
