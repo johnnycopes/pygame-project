@@ -18,13 +18,13 @@ class Hero(object):
 
         # 25/30 are the width/height values of the trees
         if self.x + self.x_speed > width - self.size - 25:
-            self.x_speed = 0
+            self.x = width - self.size - 25
         if self.x + self.x_speed < 0 + 25:
-            self.x_speed = 0
+            self.x = 0 + 25
         if self.y + self.y_speed > height - self.size - 30:
-            self.y_speed = 0
+            self.y = height - self.size - 30
         if self.y + self.y_speed < 0 + 30:
-            self.y_speed = 0
+            self.y = 0 + 30
 
 
 class Monster(object):
@@ -56,14 +56,19 @@ class Monster(object):
 
         # move in a random direction
         direction = randint(1, 4)
+        diagonal = randint(-4, 4)
         if direction == 1:
             self.x_speed = 4
+            self.y_speed = diagonal
         elif direction == 2:
             self.x_speed = -4
+            self.y_speed = diagonal
         elif direction == 3:
             self.y_speed = 4
+            self.x_speed = diagonal
         else:
             self.y_speed = -4
+            self.x_speed = diagonal
 
 
 def main():
@@ -144,8 +149,6 @@ def main():
             monster.dead = True
             pygame.mixer.init()
             pygame.mixer.music.load('sounds/win.wav')
-
-
 
 
         ################################
